@@ -5,11 +5,11 @@ on:
     - cron: '*/5 * * * *'
 
 env:
-  alpines-regex: ^3\.15\.\d+|latest$
+  version-regex: ^(3\.15\.\d+|latest)$
 
 jobs:
   scan:
-    name: List Recent Updates
+    name: Scan for recent Tags
     runs-on: ubuntu-latest
     outputs:
       tags: ${{ steps.convert.outputs.tags }}
@@ -24,7 +24,7 @@ jobs:
           max-age-minutes: 144000
           username: services1dysnix
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          tag-regex: ${{ env.alpine-regex }}
+          tag-regex: ${{ env.version-regex }}
       -
         name: Convert tags
         uses: actions/github-script@v5
@@ -37,8 +37,10 @@ jobs:
     name: Docker Image
     uses: dysnix/github-workflows/.github/workflows/docker.build-and-push.yaml@main
     needs: [scan]
+    if: github.event_name == 'worfklow_dispatch' || needs.scan.outputs.tags != ''
     with:
       username: services1dysnix
+      push: true
       metadata-tags: |
         ${{ needs.scan.outputs.tags }}
         ${{ github.event_name == 'worfklow_dispatch' && 'latest' || '' }}
