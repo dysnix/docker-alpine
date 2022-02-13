@@ -41,7 +41,7 @@ jobs:
       username: services1dysnix
       metadata-tags: |
         ${{ needs.scan.outputs.tags }}
-        ${{ github.event_name == 'worfklow_dispatch' && 'latest' : '' }}
+        ${{ github.event_name == 'worfklow_dispatch' && 'latest' || '' }}
 
     secrets:
       password: "${{ secrets.DOCKERHUB_TOKEN }}"
