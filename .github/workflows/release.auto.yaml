@@ -5,7 +5,7 @@ on:
     - cron: '*/5 * * * *'
 
 env:
-  version-regex: ^(3\.15\.\d+|latest)$
+  version-regex: ^(3\.15(\.\d+)?|latest)$
 
 jobs:
   scan:
