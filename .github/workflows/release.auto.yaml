@@ -2,7 +2,7 @@ name: Publish new release
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '03 15 * * 2'
 
 env:
   version-regex: ^(3\.15(\.\d+)?|latest)$
@@ -21,7 +21,7 @@ jobs:
         id: scan
         with:
           image: library/alpine
-          max-age-minutes: 144000
+          max-age-minutes: 10080
           username: services1dysnix
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           tag-regex: ${{ env.version-regex }}
