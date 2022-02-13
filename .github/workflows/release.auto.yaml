@@ -1,0 +1,47 @@
+name: Publish new release
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '13 15 * * *'
+
+env:
+  alpines-regex: ^3\.15\.\d+|latest$
+
+jobs:
+  scan:
+    name: List Recent Updates
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.convert.outputs.tags }}
+
+    steps:
+      -
+        name: Scan Docker Repository
+        uses: dhet/scan-docker-tags-action@v1.0.1
+        id: scan
+        with:
+          image: library/alpine
+          max-age-minutes: 144000
+          username: services1dysnix
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          tag-regex: ${{ env.alpine-regex }}
+      -
+        name: Convert tags
+        uses: actions/github-script@v5
+        id: convert
+        with:
+          script: |
+            core.setOutput('tags', '${{ steps.scan.outputs.tags }}'.replace(/,/g, '\n'))
+
+  push:
+    name: Docker Image
+    uses: dysnix/github-workflows/.github/workflows/docker.build-and-push.yaml@main
+    needs: [scan]
+    with:
+      username: services1dysnix
+      metadata-tags: |
+        ${{ needs.scan.outputs.tags }}
+        ${{ github.event_name == 'worfklow_dispatch' && 'latest' : '' }}
+
+    secrets:
+      password: "${{ secrets.DOCKERHUB_TOKEN }}"
