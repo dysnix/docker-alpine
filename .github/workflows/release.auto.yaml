@@ -37,13 +37,13 @@ jobs:
     name: Docker Image
     uses: dysnix/github-workflows/.github/workflows/docker.build-and-push.yaml@main
     needs: [scan]
-    if: github.event_name == 'worfklow_dispatch' || needs.scan.outputs.tags != ''
+    if: github.event_name == 'workflow_dispatch' || needs.scan.outputs.tags != ''
     with:
       username: services1dysnix
       push: true
       metadata-tags: |
         ${{ needs.scan.outputs.tags }}
-        ${{ github.event_name == 'worfklow_dispatch' && 'latest' || '' }}
+        ${{ github.event_name == 'workflow_dispatch' && 'latest' || '' }}
 
     secrets:
       password: "${{ secrets.DOCKERHUB_TOKEN }}"
